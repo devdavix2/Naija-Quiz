@@ -113,7 +113,7 @@ export default function QuizCategoriesSection() {
                     </p>
                   </CardContent>
                   <CardFooter>
-                    <Link href={`/quiz/${category.id}`} className="w-full">
+                    <Link href={`/quiz?category=${category.id}`} className="w-full">
                       <Button className={`w-full bg-gradient-to-r ${category.color} hover:opacity-90`}>
                         Start Quiz <ArrowRight className="ml-2 h-4 w-4" />
                       </Button>
