@@ -1,3 +1,4 @@
+```tsx
 // 404/page.tsx or your layout component
 "use client";
 import { Suspense } from "react";
