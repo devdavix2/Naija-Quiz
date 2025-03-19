@@ -10,8 +10,8 @@ export default function AboutPage() {
 
         <div className="prose dark:prose-invert max-w-none">
           <p className="text-lg mb-4">
-            NaijaSpark Quiz is an interactive platform designed to help people learn about Nigerian culture,
-            history, food, music, and more through engaging quizzes.
+            NaijaSpark Quiz is an interactive platform designed to help people learn about Nigerian culture, history,
+            food, music, and more through engaging quizzes.
           </p>
 
           <h2 className="text-2xl font-bold mt-8 mb-4">Our Mission</h2>
@@ -39,7 +39,7 @@ export default function AboutPage() {
           <h2 className="text-2xl font-bold mt-8 mb-4">Contact Us</h2>
           <p>
             Have suggestions for new quiz topics or questions? We'd love to hear from you! Contact us at{" "}
-            <a href="mailto:devdavixx@gmail.com" className="text-green-600 hover:underline">
+            <a href="mailto:info@naijasparkquiz.com" className="text-green-600 hover:underline">
               info@naijasparkquiz.com
             </a>
             .
