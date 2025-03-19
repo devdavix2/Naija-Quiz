@@ -3,8 +3,8 @@
 import { useRef, useState } from "react"
 import { motion, useInView } from "framer-motion"
 import { Card, CardContent } from "@/components/ui/card"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import { ChevronLeft, ChevronRight, Quote } from "lucide-react"
+import { Avatar, AvatarFallback } from "@/components/ui/avatar"
+import { ChevronLeft, ChevronRight, Quote, User } from "lucide-react"
 import { Button } from "@/components/ui/button"
 
 export default function TestimonialsSection() {
@@ -16,6 +16,7 @@ export default function TestimonialsSection() {
     {
       name: "Chioma Okafor",
       role: "Student",
+      // Image is no longer used; the icon is displayed instead
       image: "/placeholder.svg?height=100&width=100",
       quote:
         "NaijaSpark Quiz has been an incredible way for me to learn more about my Nigerian heritage. The quizzes are fun, challenging, and I love competing with my friends on the leaderboard!",
@@ -82,8 +83,10 @@ export default function TestimonialsSection() {
                 </p>
                 <div className="flex items-center">
                   <Avatar className="h-12 w-12 mr-4">
-                    <AvatarImage src={testimonials[currentIndex].image} alt={testimonials[currentIndex].name} />
-                    <AvatarFallback>{testimonials[currentIndex].name.charAt(0)}</AvatarFallback>
+                    {/* Instead of displaying an image, we now use the User icon */}
+                    <AvatarFallback>
+                      <User className="h-6 w-6" />
+                    </AvatarFallback>
                   </Avatar>
                   <div>
                     <h4 className="font-bold">{testimonials[currentIndex].name}</h4>

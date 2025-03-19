@@ -7,21 +7,43 @@ import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/componen
 import { Progress } from "@/components/ui/progress"
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group"
 import { Label } from "@/components/ui/label"
-import { ArrowLeft, ArrowRight, CheckCircle, Timer, XCircle } from "lucide-react"
-import type { Quiz, QuizQuestion } from "@/types/quiz"
+import {
+  ArrowLeft,
+  ArrowRight,
+  CheckCircle,
+  Timer,
+  XCircle,
+  Bookmark,
+  BookmarkCheck,
+  PauseCircle,
+  PlayCircle,
+  RotateCcw,
+} from "lucide-react"
+import type { Quiz, QuizQuestion } from "@/types/app-types"
 import { LanguageSelector } from "@/components/language-selector"
-import { submitQuizResult } from "@/lib/quiz-actions"
+import { useStore } from "@/lib/store"
 import { useToast } from "@/hooks/use-toast"
 import confetti from "canvas-confetti"
 import { motion, AnimatePresence } from "framer-motion"
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, DialogFooter } from "@/components/ui/dialog"
+import { Textarea } from "@/components/ui/textarea"
 
 interface QuizInterfaceProps {
   quiz: Quiz
-  userId?: string
-  isAuthenticated: boolean
 }
 
-export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInterfaceProps) {
+export default function QuizInterface({ quiz }: QuizInterfaceProps) {
+  // Get store values and actions
+  const preferredLanguage = useStore((state) => state.preferredLanguage)
+  const saveQuizResult = useStore((state) => state.saveQuizResult)
+  const saveQuizProgress = useStore((state) => state.saveQuizProgress)
+  const getQuizProgress = useStore((state) => state.getQuizProgress)
+  const clearQuizProgress = useStore((state) => state.clearQuizProgress)
+  const toggleFavorite = useStore((state) => state.toggleFavorite)
+  const isFavorite = useStore((state) => state.isFavorite)
+  const addNote = useStore((state) => state.addNote)
+  const getNotesForQuiz = useStore((state) => state.getNotesForQuiz)
+
   const router = useRouter()
   const { toast } = useToast()
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
@@ -29,16 +51,51 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
   const [answers, setAnswers] = useState<string[]>([])
   const [timeLeft, setTimeLeft] = useState(0)
   const [quizStarted, setQuizStarted] = useState(false)
-  const [language, setLanguage] = useState<string>("english")
+  const [language, setLanguage] = useState<string>(preferredLanguage)
   const [isSubmitting, setIsSubmitting] = useState(false)
   const [isAnswered, setIsAnswered] = useState(false)
   const [isCorrect, setIsCorrect] = useState(false)
   const [showFeedback, setShowFeedback] = useState(false)
+  const [isPaused, setIsPaused] = useState(false)
+  const [noteText, setNoteText] = useState("")
+  const [showNoteDialog, setShowNoteDialog] = useState(false)
+  const [favorite, setFavorite] = useState(false)
   const timerRef = useRef<NodeJS.Timeout | null>(null)
   const progressBarRef = useRef<HTMLDivElement>(null)
 
+  // Check if there's a saved progress
   useEffect(() => {
-    if (!quizStarted || !timeLeft) return
+    const savedProgress = getQuizProgress(quiz.id)
+    if (savedProgress) {
+      // Ask user if they want to continue from where they left off
+      const wantsToContinue = window.confirm(
+        "You have a saved quiz in progress. Would you like to continue where you left off?",
+      )
+
+      if (wantsToContinue) {
+        setAnswers(savedProgress.answers)
+        setCurrentQuestionIndex(savedProgress.currentQuestionIndex)
+        setTimeLeft(savedProgress.timeLeft)
+        setQuizStarted(true)
+
+        // If there's an answer for the current question, select it
+        if (savedProgress.answers[savedProgress.currentQuestionIndex]) {
+          setSelectedAnswer(savedProgress.answers[savedProgress.currentQuestionIndex])
+          setIsAnswered(true)
+        }
+      } else {
+        // Clear the saved progress if user doesn't want to continue
+        clearQuizProgress(quiz.id)
+      }
+    }
+
+    // Check if quiz is favorited
+    setFavorite(isFavorite(quiz.id))
+  }, [quiz.id, getQuizProgress, clearQuizProgress, isFavorite])
+
+  // Timer effect
+  useEffect(() => {
+    if (!quizStarted || !timeLeft || isPaused) return
 
     timerRef.current = setInterval(() => {
       setTimeLeft((prev) => {
@@ -54,9 +111,9 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     return () => {
       if (timerRef.current) clearInterval(timerRef.current)
     }
-  }, [quizStarted, timeLeft])
+  }, [quizStarted, timeLeft, isPaused])
 
-  // Add timer animation
+  // Timer animation effect
   useEffect(() => {
     if (!quizStarted || !timeLeft || !progressBarRef.current) return
 
@@ -74,17 +131,43 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     }
   }, [timeLeft, quizStarted, quiz.timeLimit])
 
+  // Save progress periodically
+  useEffect(() => {
+    if (!quizStarted || isSubmitting) return
+
+    const saveInterval = setInterval(() => {
+      if (!isPaused) {
+        saveQuizProgress(quiz.id, answers, currentQuestionIndex, timeLeft)
+      }
+    }, 10000) // Save every 10 seconds
+
+    return () => clearInterval(saveInterval)
+  }, [quizStarted, answers, currentQuestionIndex, timeLeft, isPaused, quiz.id, saveQuizProgress, isSubmitting])
+
+  // Start the quiz
   const startQuiz = () => {
     setQuizStarted(true)
     setTimeLeft(quiz.timeLimit)
     setAnswers(new Array(quiz.questions.length).fill(""))
+
+    // Track quiz start in analytics
+    if (typeof window !== "undefined" && "gtag" in window) {
+      // @ts-ignore
+      window.gtag("event", "start_quiz", {
+        quiz_id: quiz.id,
+        quiz_title: quiz.title,
+        language: language,
+      })
+    }
   }
 
+  // Handle answer selection
   const handleAnswerSelect = (value: string) => {
     if (isAnswered) return
     setSelectedAnswer(value)
   }
 
+  // Check the selected answer
   const checkAnswer = () => {
     if (!selectedAnswer || isAnswered) return
 
@@ -125,6 +208,7 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     }, 1500)
   }
 
+  // Go to previous question
   const goToPreviousQuestion = () => {
     if (currentQuestionIndex > 0 && !isAnswered) {
       setCurrentQuestionIndex(currentQuestionIndex - 1)
@@ -132,25 +216,25 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     }
   }
 
-  const finishQuiz = async () => {
+  // Finish the quiz and save results
+  const finishQuiz = () => {
     if (isSubmitting) return
 
     setIsSubmitting(true)
     const score = calculateScore()
-    const percentage = Math.round((score / quiz.questions.length) * 100)
 
     try {
-      if (isAuthenticated && userId) {
-        // Submit result to the server if user is authenticated
-        await submitQuizResult({
-          quizId: quiz.id,
-          userId,
-          score,
-          totalQuestions: quiz.questions.length,
-          timeSpent: quiz.timeLimit - timeLeft,
-          language,
-        })
-      }
+      // Save quiz result to store
+      saveQuizResult({
+        quizId: quiz.id,
+        quizTitle: quiz.title,
+        score,
+        totalQuestions: quiz.questions.length,
+        date: new Date().toISOString(),
+      })
+
+      // Clear the saved progress
+      clearQuizProgress(quiz.id)
 
       // Trigger celebration confetti
       confetti({
@@ -159,18 +243,31 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
         origin: { y: 0.6 },
       })
 
+      // Track quiz completion in analytics
+      if (typeof window !== "undefined" && "gtag" in window) {
+        // @ts-ignore
+        window.gtag("event", "complete_quiz", {
+          quiz_id: quiz.id,
+          quiz_title: quiz.title,
+          score: score,
+          total_questions: quiz.questions.length,
+          language: language,
+        })
+      }
+
       // Redirect to results page
       router.push(`/results?quizId=${quiz.id}&score=${score}&total=${quiz.questions.length}&language=${language}`)
     } catch (error) {
       toast({
         title: "Error",
-        description: "Failed to submit quiz results. Please try again.",
+        description: "Failed to save quiz results. Please try again.",
         variant: "destructive",
       })
       setIsSubmitting(false)
     }
   }
 
+  // Calculate the score
   const calculateScore = () => {
     let score = 0
     answers.forEach((answer, index) => {
@@ -181,6 +278,7 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     return score
   }
 
+  // Get localized question based on selected language
   const getLocalizedQuestion = (question: QuizQuestion) => {
     if (language === "english" || !question.translations) {
       return question
@@ -196,6 +294,63 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     }
   }
 
+  // Toggle pause state
+  const togglePause = () => {
+    setIsPaused(!isPaused)
+
+    if (!isPaused) {
+      // Save progress when pausing
+      saveQuizProgress(quiz.id, answers, currentQuestionIndex, timeLeft)
+      toast({
+        title: "Quiz paused",
+        description: "Your progress has been saved. You can resume anytime.",
+      })
+    }
+  }
+
+  // Toggle favorite
+  const handleToggleFavorite = () => {
+    toggleFavorite(quiz.id)
+    setFavorite(!favorite)
+
+    toast({
+      title: favorite ? "Removed from favorites" : "Added to favorites",
+      description: favorite
+        ? "This quiz has been removed from your favorites."
+        : "This quiz has been added to your favorites.",
+    })
+  }
+
+  // Add note
+  const handleAddNote = () => {
+    if (!noteText.trim()) return
+
+    addNote(quiz.id, noteText)
+    setNoteText("")
+    setShowNoteDialog(false)
+
+    toast({
+      title: "Note added",
+      description: "Your note has been saved for this quiz.",
+    })
+  }
+
+  // Reset quiz
+  const resetQuiz = () => {
+    if (confirm("Are you sure you want to reset this quiz? All progress will be lost.")) {
+      clearQuizProgress(quiz.id)
+      setQuizStarted(false)
+      setCurrentQuestionIndex(0)
+      setSelectedAnswer(null)
+      setAnswers(new Array(quiz.questions.length).fill(""))
+      setIsAnswered(false)
+      setIsCorrect(false)
+      setShowFeedback(false)
+      setIsPaused(false)
+    }
+  }
+
+  // Quiz start screen
   if (!quizStarted) {
     return (
       <motion.div
@@ -205,7 +360,16 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
         transition={{ duration: 0.5 }}
       >
         <Card className="w-full max-w-2xl">
-          <CardHeader>
+          <CardHeader className="relative">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="absolute right-4 top-4"
+              onClick={handleToggleFavorite}
+              aria-label={favorite ? "Remove from favorites" : "Add to favorites"}
+            >
+              {favorite ? <BookmarkCheck className="h-5 w-5 text-green-600" /> : <Bookmark className="h-5 w-5" />}
+            </Button>
             <CardTitle className="text-2xl text-center">{quiz.title}</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
@@ -229,18 +393,46 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
               </div>
             )}
 
-            {!isAuthenticated && (
-              <div className="bg-yellow-50 dark:bg-yellow-900/20 p-4 rounded-lg text-sm">
-                <p className="font-medium text-yellow-800 dark:text-yellow-200">Not signed in</p>
-                <p className="text-yellow-700 dark:text-yellow-300">
-                  Your results won't be saved to your profile.
-                  <a href="/api/auth/signin" className="underline ml-1">
-                    Sign in
-                  </a>{" "}
-                  to track your progress.
-                </p>
+            {/* Notes section */}
+            <div className="mt-4 border-t pt-4">
+              <div className="flex justify-between items-center mb-2">
+                <h3 className="font-medium">Your Notes</h3>
+                <Dialog open={showNoteDialog} onOpenChange={setShowNoteDialog}>
+                  <DialogTrigger asChild>
+                    <Button variant="outline" size="sm">
+                      Add Note
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent>
+                    <DialogHeader>
+                      <DialogTitle>Add a note for this quiz</DialogTitle>
+                    </DialogHeader>
+                    <Textarea
+                      placeholder="Write your note here..."
+                      value={noteText}
+                      onChange={(e) => setNoteText(e.target.value)}
+                      className="min-h-[100px]"
+                    />
+                    <DialogFooter>
+                      <Button onClick={handleAddNote}>Save Note</Button>
+                    </DialogFooter>
+                  </DialogContent>
+                </Dialog>
               </div>
-            )}
+
+              <div className="space-y-2 max-h-[200px] overflow-y-auto">
+                {getNotesForQuiz(quiz.id).length > 0 ? (
+                  getNotesForQuiz(quiz.id).map((note) => (
+                    <div key={note.id} className="bg-gray-50 dark:bg-gray-800 p-3 rounded-md text-sm">
+                      <p>{note.note}</p>
+                      <p className="text-xs text-gray-500 mt-1">{new Date(note.createdAt).toLocaleDateString()}</p>
+                    </div>
+                  ))
+                ) : (
+                  <p className="text-sm text-gray-500">No notes yet. Add one to help you remember key points.</p>
+                )}
+              </div>
+            </div>
           </CardContent>
           <CardFooter className="flex justify-between">
             <Button variant="outline" onClick={() => router.push("/")}>
@@ -260,6 +452,7 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
     )
   }
 
+  // Active quiz screen
   const currentQuestion = getLocalizedQuestion(quiz.questions[currentQuestionIndex])
   const progress = ((currentQuestionIndex + 1) / quiz.questions.length) * 100
   const minutes = Math.floor(timeLeft / 60)
@@ -273,10 +466,23 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
             <span className="text-sm font-medium">
               Question {currentQuestionIndex + 1} of {quiz.questions.length}
             </span>
-            <span className="flex items-center text-sm font-medium">
-              <Timer className="mr-1 h-4 w-4" />
-              {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
-            </span>
+            <div className="flex items-center gap-2">
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={togglePause}
+                aria-label={isPaused ? "Resume quiz" : "Pause quiz"}
+              >
+                {isPaused ? <PlayCircle className="h-5 w-5 text-green-600" /> : <PauseCircle className="h-5 w-5" />}
+              </Button>
+              <Button variant="ghost" size="icon" onClick={resetQuiz} aria-label="Reset quiz">
+                <RotateCcw className="h-5 w-5" />
+              </Button>
+              <span className="flex items-center text-sm font-medium">
+                <Timer className="mr-1 h-4 w-4" />
+                {minutes}:{seconds < 10 ? `0${seconds}` : seconds}
+              </span>
+            </div>
           </div>
           <Progress value={progress} className="h-2" />
 
@@ -300,7 +506,7 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
           >
             <Card>
               <CardHeader>
-                <CardTitle>{currentQuestion.question}</CardTitle>
+                <CardTitle className="text-xl md:text-2xl break-words">{currentQuestion.question}</CardTitle>
               </CardHeader>
               <CardContent>
                 <RadioGroup value={selectedAnswer || ""} onValueChange={handleAnswerSelect}>
@@ -314,7 +520,7 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
                       <RadioGroupItem value={option} id={`option-${index}`} disabled={isAnswered} />
                       <Label
                         htmlFor={`option-${index}`}
-                        className={`cursor-pointer flex-1 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 ${
+                        className={`cursor-pointer flex-1 p-3 rounded-md hover:bg-gray-100 dark:hover:bg-gray-800 break-words ${
                           showFeedback && option === currentQuestion.correctAnswer
                             ? "border-2 border-green-500 bg-green-50 dark:bg-green-900/20"
                             : showFeedback && option === selectedAnswer && !isCorrect
@@ -323,12 +529,12 @@ export default function QuizInterface({ quiz, userId, isAuthenticated }: QuizInt
                         }`}
                       >
                         <div className="flex justify-between items-center">
-                          <span>{option}</span>
+                          <span className="pr-2">{option}</span>
                           {showFeedback && option === currentQuestion.correctAnswer && (
-                            <CheckCircle className="h-5 w-5 text-green-600" />
+                            <CheckCircle className="h-5 w-5 text-green-600 flex-shrink-0" />
                           )}
                           {showFeedback && option === selectedAnswer && !isCorrect && (
-                            <XCircle className="h-5 w-5 text-red-600" />
+                            <XCircle className="h-5 w-5 text-red-600 flex-shrink-0" />
                           )}
                         </div>
                       </Label>

@@ -2,7 +2,7 @@
 
 import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
-import { Award, BarChart3, Brain, Languages, MessageSquare, Trophy } from "lucide-react"
+import { Award, BarChart3, Languages, Trophy, Sparkles, Zap } from "lucide-react"
 
 export default function FeatureSection() {
   const ref = useRef(null)
@@ -10,34 +10,33 @@ export default function FeatureSection() {
 
   const features = [
     {
-      icon: <Trophy className="h-10 w-10 text-green-600" />,
-      title: "Competitive Leaderboards",
-      description:
-        "Compete with friends and other users to reach the top of our global and category-specific leaderboards.",
+      icon: <Sparkles className="h-10 w-10 text-green-600" />,
+      title: "AI-Generated Quizzes",
+      description: "Create unique quizzes on Nigerian topics using AI technology for fresh content every time.",
       delay: 0,
+    },
+    {
+      icon: <Trophy className="h-10 w-10 text-green-600" />,
+      title: "Track Your Progress",
+      description: "Monitor your performance and see how your knowledge improves over time with detailed statistics.",
+      delay: 0.1,
     },
     {
       icon: <Award className="h-10 w-10 text-green-600" />,
       title: "Earn Badges & Achievements",
       description: "Unlock special badges and achievements as you complete quizzes and improve your knowledge.",
-      delay: 0.1,
+      delay: 0.2,
     },
     {
       icon: <Languages className="h-10 w-10 text-green-600" />,
       title: "Multiple Language Options",
       description: "Take quizzes in English, Pidgin, Yoruba, Igbo, or Hausa to match your language preference.",
-      delay: 0.2,
-    },
-    {
-      icon: <Brain className="h-10 w-10 text-green-600" />,
-      title: "AI-Powered Recommendations",
-      description: "Get personalized quiz suggestions based on your interests, performance, and learning patterns.",
       delay: 0.3,
     },
     {
-      icon: <MessageSquare className="h-10 w-10 text-green-600" />,
-      title: "Community Discussions",
-      description: "Join conversations with other quiz enthusiasts to share knowledge and experiences.",
+      icon: <Zap className="h-10 w-10 text-green-600" />,
+      title: "Offline Functionality",
+      description: "Access and take quizzes even without an internet connection with our offline mode.",
       delay: 0.4,
     },
     {
