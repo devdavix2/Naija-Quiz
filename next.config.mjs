@@ -1,10 +1,3 @@
-let userConfig = undefined
-try {
-  userConfig = await import('./v0-user-next.config')
-} catch (e) {
-  // ignore error
-}
-
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
@@ -14,32 +7,37 @@ const nextConfig = {
     ignoreBuildErrors: true,
   },
   experimental: {
+    // Keep only essential experiments
     webpackBuildWorker: true,
-    parallelServerBuildTraces: true,
-    parallelServerCompiles: true,
+    // Remove these as they're now default in Next.js 15
+    // parallelServerBuildTraces: true,
+    // parallelServerCompiles: true,
   },
+  // Add if using static export
+  output: process.env.NEXT_OUTPUT_MODE === 'export' ? 'export' : undefined,
+  // Add if using app router
+  skipTrailingSlashRedirect: true,
+  skipMiddlewareUrlNormalize: true
 }
 
-mergeConfig(nextConfig, userConfig)
+// Merge with user config
+let userConfig = undefined
+try {
+  userConfig = await import('./v0-user-next.config')
+} catch (e) {
+  // ignore error
+}
 
-function mergeConfig(nextConfig, userConfig) {
-  if (!userConfig) {
-    return
-  }
-
-  for (const key in userConfig) {
-    if (
-      typeof nextConfig[key] === 'object' &&
-      !Array.isArray(nextConfig[key])
-    ) {
-      nextConfig[key] = {
-        ...nextConfig[key],
-        ...userConfig[key],
-      }
-    } else {
-      nextConfig[key] = userConfig[key]
+function mergeConfig(base, user) {
+  return user ? {
+    ...base,
+    ...user,
+    webpack: (config, options) => {
+      if (base.webpack) config = base.webpack(config, options)
+      if (user.webpack) config = user.webpack(config, options)
+      return config
     }
-  }
+  } : base
 }
 
-export default nextConfig
+export default mergeConfig(nextConfig, userConfig)
