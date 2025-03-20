@@ -2,6 +2,7 @@
 
 import Link from "next/link"
 import { Button } from "@/components/ui/button"
+<<<<<<< HEAD
 import { Award, Menu, Moon, Sun } from "lucide-react"
 import { useTheme } from "next-themes"
 import { useState } from "react"
@@ -25,6 +26,24 @@ export function Navbar({ user }: NavbarProps) {
   const { theme, setTheme } = useTheme()
   const [isMenuOpen, setIsMenuOpen] = useState(false)
 
+=======
+import { Award, Menu, Moon, Sun, BarChart3, Bookmark, Settings, Sparkles } from "lucide-react"
+import { useTheme } from "@/components/theme-provider"
+import { useState } from "react"
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet"
+import { useStore } from "@/lib/store"
+import { Switch } from "@/components/ui/switch"
+import { Label } from "@/components/ui/label"
+
+export function Navbar() {
+  const { theme, setTheme } = useTheme()
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
+
+  // Get offline mode state from store
+  const offlineMode = useStore((state) => state.offlineMode)
+  const toggleOfflineMode = useStore((state) => state.toggleOfflineMode)
+
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
       <div className="container flex h-16 items-center justify-between">
@@ -40,11 +59,25 @@ export function Navbar({ user }: NavbarProps) {
             <Link href="/" className="text-sm font-medium hover:text-green-600 transition-colors">
               Home
             </Link>
+<<<<<<< HEAD
             <Link href="/leaderboard" className="text-sm font-medium hover:text-green-600 transition-colors">
               Leaderboard
             </Link>
             <Link href="/community" className="text-sm font-medium hover:text-green-600 transition-colors">
               Community
+=======
+            <Link href="/generate" className="text-sm font-medium hover:text-green-600 transition-colors">
+              Generate
+            </Link>
+            <Link href="/favorites" className="text-sm font-medium hover:text-green-600 transition-colors">
+              Favorites
+            </Link>
+            <Link href="/statistics" className="text-sm font-medium hover:text-green-600 transition-colors">
+              Statistics
+            </Link>
+            <Link href="/about" className="text-sm font-medium hover:text-green-600 transition-colors">
+              About
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
             </Link>
           </nav>
 
@@ -59,6 +92,7 @@ export function Navbar({ user }: NavbarProps) {
               <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100" />
             </Button>
 
+<<<<<<< HEAD
             {user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
@@ -100,6 +134,14 @@ export function Navbar({ user }: NavbarProps) {
                 <Link href="/api/auth/signin">Sign In</Link>
               </Button>
             )}
+=======
+            <div className="flex items-center gap-2 ml-2">
+              <Switch id="offline-mode" checked={offlineMode} onCheckedChange={toggleOfflineMode} />
+              <Label htmlFor="offline-mode" className="text-xs">
+                Offline Mode
+              </Label>
+            </div>
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
           </div>
         </div>
 
@@ -116,12 +158,17 @@ export function Navbar({ user }: NavbarProps) {
                   <nav className="flex flex-col gap-4 mt-8">
                     <Link
                       href="/"
+<<<<<<< HEAD
                       className="text-lg font-medium hover:text-green-600 transition-colors"
+=======
+                      className="text-lg font-medium hover:text-green-600 transition-colors px-2 py-1 block"
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
                       onClick={() => setIsMenuOpen(false)}
                     >
                       Home
                     </Link>
                     <Link
+<<<<<<< HEAD
                       href="/leaderboard"
                       className="text-lg font-medium hover:text-green-600 transition-colors"
                       onClick={() => setIsMenuOpen(false)}
@@ -203,6 +250,56 @@ export function Navbar({ user }: NavbarProps) {
                       <Link href="/api/auth/signin">Sign In</Link>
                     </Button>
                   )}
+=======
+                      href="/generate"
+                      className="text-lg font-medium hover:text-green-600 transition-colors px-2 py-1 block flex items-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Sparkles className="h-4 w-4 mr-2" /> Generate
+                    </Link>
+                    <Link
+                      href="/favorites"
+                      className="text-lg font-medium hover:text-green-600 transition-colors px-2 py-1 block flex items-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Bookmark className="h-4 w-4 mr-2" /> Favorites
+                    </Link>
+                    <Link
+                      href="/statistics"
+                      className="text-lg font-medium hover:text-green-600 transition-colors px-2 py-1 block flex items-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <BarChart3 className="h-4 w-4 mr-2" /> Statistics
+                    </Link>
+                    <Link
+                      href="/about"
+                      className="text-lg font-medium hover:text-green-600 transition-colors px-2 py-1 block flex items-center"
+                      onClick={() => setIsMenuOpen(false)}
+                    >
+                      <Settings className="h-4 w-4 mr-2" /> About
+                    </Link>
+                  </nav>
+                </div>
+
+                <div className="py-4 space-y-4">
+                  <div className="flex items-center justify-between">
+                    <Button
+                      variant="ghost"
+                      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
+                      aria-label="Toggle theme"
+                      className="w-full justify-start"
+                    >
+                      <Sun className="h-5 w-5 rotate-0 scale-100 transition-all dark:-rotate-90 dark:scale-0 mr-2" />
+                      <Moon className="absolute h-5 w-5 rotate-90 scale-0 transition-all dark:rotate-0 dark:scale-100 mr-2" />
+                      <span>{theme === "dark" ? "Light" : "Dark"} mode</span>
+                    </Button>
+                  </div>
+
+                  <div className="flex items-center justify-between px-2">
+                    <Label htmlFor="mobile-offline-mode">Offline Mode</Label>
+                    <Switch id="mobile-offline-mode" checked={offlineMode} onCheckedChange={toggleOfflineMode} />
+                  </div>
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
                 </div>
               </div>
             </SheetContent>

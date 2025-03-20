@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 export const BarChart = () => {
   return null
 }
@@ -25,4 +26,20 @@ export const Tooltip = () => {
 export const ResponsiveContainer = () => {
   return null
 }
+=======
+// chart.tsx
+export { 
+  BarChart, 
+  Bar, 
+  XAxis, 
+  YAxis, 
+  CartesianGrid, 
+  Tooltip, 
+  ResponsiveContainer, 
+  PieChart, 
+  Pie, 
+  Cell, 
+  Legend 
+} from "recharts";
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 

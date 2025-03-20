@@ -1,5 +1,6 @@
 "use client"
 
+<<<<<<< HEAD
 import { useState, useEffect } from "react"
 import { useParams, useRouter } from "next/navigation"
 import { Button } from "@/components/ui/button"
@@ -10,10 +11,19 @@ import { Label } from "@/components/ui/label"
 import { ArrowLeft, ArrowRight, Timer } from "lucide-react"
 import { quizData } from "@/lib/quiz-data"
 import { saveQuizResult } from "@/lib/local-storage"
+=======
+import { useEffect } from "react"
+import { useParams, useRouter } from "next/navigation"
+import QuizInterface from "@/components/quiz-interface"
+import { useStore } from "@/lib/store"
+import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardContent } from "@/components/ui/card"
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 
 export default function QuizPage() {
   const router = useRouter()
   const { category } = useParams() as { category: string }
+<<<<<<< HEAD
   const [currentQuiz, setCurrentQuiz] = useState<any>(null)
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0)
   const [selectedAnswer, setSelectedAnswer] = useState<string | null>(null)
@@ -133,10 +143,45 @@ export default function QuizPage() {
             </Button>
           </CardFooter>
         </Card>
+=======
+
+  // Get quiz data from store
+  const getQuizById = useStore((state) => state.getQuizById)
+  const quiz = getQuizById(category)
+
+  // Redirect if quiz not found
+  useEffect(() => {
+    if (!quiz) {
+      router.push("/")
+    }
+  }, [quiz, router])
+
+  // Show loading state while checking if quiz exists
+  if (!quiz) {
+    return (
+      <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+        <div className="container mx-auto px-4 py-8">
+          <Card>
+            <CardContent className="p-8">
+              <div className="space-y-4">
+                <Skeleton className="h-8 w-3/4 mx-auto" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-full" />
+                <Skeleton className="h-4 w-2/3" />
+                <div className="flex justify-between pt-4">
+                  <Skeleton className="h-10 w-24" />
+                  <Skeleton className="h-10 w-24" />
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
       </div>
     )
   }
 
+<<<<<<< HEAD
   const currentQuestion = currentQuiz.questions[currentQuestionIndex]
   const progress = ((currentQuestionIndex + 1) / currentQuiz.questions.length) * 100
   const minutes = Math.floor(timeLeft / 60)
@@ -187,6 +232,12 @@ export default function QuizPage() {
             </Button>
           </CardFooter>
         </Card>
+=======
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-green-50 to-green-100 dark:from-green-950 dark:to-green-900">
+      <div className="container mx-auto px-4 py-8">
+        <QuizInterface quiz={quiz} />
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
       </div>
     </div>
   )

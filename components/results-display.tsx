@@ -8,9 +8,16 @@ import { Progress } from "@/components/ui/progress"
 import { Award, Home, Trophy, Twitter, Facebook, Send, Share2, Download } from "lucide-react"
 import { Badge } from "@/components/ui/badge"
 import { Separator } from "@/components/ui/separator"
+<<<<<<< HEAD
 import type { Quiz } from "@/types/quiz"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import { useToast } from "@/hooks/use-toast"
+=======
+import type { Quiz } from "@/types/app-types"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { useToast } from "@/hooks/use-toast"
+import { useStore } from "@/lib/store"
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 import confetti from "canvas-confetti"
 import { motion, AnimatePresence } from "framer-motion"
 
@@ -20,6 +27,7 @@ interface ResultsDisplayProps {
   total: number
   percentage: number
   language: string
+<<<<<<< HEAD
   isAuthenticated: boolean
   userBadges: string[]
 }
@@ -33,14 +41,27 @@ export default function ResultsDisplay({
   isAuthenticated,
   userBadges,
 }: ResultsDisplayProps) {
+=======
+}
+
+export default function ResultsDisplay({ quiz, score, total, percentage, language }: ResultsDisplayProps) {
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
   const router = useRouter()
   const { toast } = useToast()
   const [activeTab, setActiveTab] = useState("results")
   const canvasRef = useRef<HTMLCanvasElement>(null)
   const [showCelebration, setShowCelebration] = useState(false)
 
+<<<<<<< HEAD
   useEffect(() => {
     // Trigger celebration animation when results are shown
+=======
+  // Get user badges from store
+  const badges = useStore((state) => state.badges)
+
+  // Render the share card when component mounts
+  useEffect(() => {
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     setShowCelebration(true)
 
     // Trigger confetti
@@ -50,9 +71,36 @@ export default function ResultsDisplay({
       origin: { y: 0.6 },
     })
 
+<<<<<<< HEAD
     // Render the share card
     renderShareCard()
   }, [])
+=======
+    // Render the share card initially
+    renderShareCard()
+
+    // Track result view in analytics
+    if (typeof window !== "undefined" && "gtag" in window) {
+      // @ts-ignore
+      window.gtag("event", "view_results", {
+        quiz_id: quiz.id,
+        quiz_title: quiz.title,
+        score: score,
+        total: total,
+        percentage: percentage,
+      })
+    }
+  }, [quiz.id, quiz.title, score, total, percentage])
+
+  // When user switches to the "share" tab, delay re-rendering the canvas
+  useEffect(() => {
+    if (activeTab === "share") {
+      setTimeout(() => {
+        renderShareCard()
+      }, 100)
+    }
+  }, [activeTab])
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 
   // Determine badge based on score percentage
   const getBadge = () => {
@@ -74,7 +122,36 @@ export default function ResultsDisplay({
 
   const message = getMessage()
 
+<<<<<<< HEAD
   // Render share card to canvas
+=======
+  // Helper function to draw a rounded rectangle
+  const drawRoundRect = (
+    ctx: CanvasRenderingContext2D,
+    x: number,
+    y: number,
+    width: number,
+    height: number,
+    radius: number | { tl: number; tr: number; br: number; bl: number }
+  ) => {
+    if (typeof radius === "number") {
+      radius = { tl: radius, tr: radius, br: radius, bl: radius }
+    }
+    ctx.beginPath()
+    ctx.moveTo(x + radius.tl, y)
+    ctx.lineTo(x + width - radius.tr, y)
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr)
+    ctx.lineTo(x + width, y + height - radius.br)
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height)
+    ctx.lineTo(x + radius.bl, y + height)
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl)
+    ctx.lineTo(x, y + radius.tl)
+    ctx.quadraticCurveTo(x, y, x + radius.tl, y)
+    ctx.closePath()
+  }
+
+  // Render share card to canvas with increased dimensions
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
   const renderShareCard = () => {
     const canvas = canvasRef.current
     if (!canvas) return
@@ -83,8 +160,13 @@ export default function ResultsDisplay({
     if (!ctx) return
 
     // Set canvas dimensions
+<<<<<<< HEAD
     canvas.width = 600
     canvas.height = 315
+=======
+    canvas.width = 700
+    canvas.height = 400
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 
     // Draw background gradient
     const gradient = ctx.createLinearGradient(0, 0, canvas.width, 0)
@@ -93,10 +175,16 @@ export default function ResultsDisplay({
     ctx.fillStyle = gradient
     ctx.fillRect(0, 0, canvas.width, canvas.height)
 
+<<<<<<< HEAD
     // Draw white card background
     ctx.fillStyle = "#ffffff"
     ctx.beginPath()
     ctx.roundRect(30, 30, canvas.width - 60, canvas.height - 60, 10)
+=======
+    // Draw white card background using the helper for rounded rectangle
+    ctx.fillStyle = "#ffffff"
+    drawRoundRect(ctx, 30, 30, canvas.width - 60, canvas.height - 60, 10)
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     ctx.fill()
 
     // Draw quiz title
@@ -111,6 +199,7 @@ export default function ResultsDisplay({
 
     // Draw percentage
     ctx.font = "24px Arial"
+<<<<<<< HEAD
     ctx.fillText(`${percentage}% Correct`, canvas.width / 2, 200)
 
     // Draw badge
@@ -127,11 +216,40 @@ export default function ResultsDisplay({
     ctx.fillStyle = "#000000"
     ctx.font = "16px Arial"
     ctx.fillText("NaijaSpark Quiz", canvas.width / 2, 290)
+=======
+    ctx.fillText(`${percentage}% Correct`, canvas.width / 2, 210)
+
+    // Draw badge background using the helper function
+    ctx.fillStyle = "#22c55e"
+    drawRoundRect(ctx, canvas.width / 2 - 100, 230, 200, 40, 20)
+    ctx.fill()
+
+    // Draw badge text
+    ctx.fillStyle = "#ffffff"
+    ctx.font = "bold 20px Arial"
+    ctx.fillText(badge, canvas.width / 2, 257)
+
+    // Draw message
+    ctx.fillStyle = "#000000"
+    ctx.font = "18px Arial"
+    ctx.fillText(message, canvas.width / 2, 300)
+
+    // Draw branding text only (no icon) and bring it down a little.
+    ctx.fillStyle = "#000000"
+    ctx.font = "bold 20px Arial"
+    ctx.textAlign = "center"
+    ctx.fillText("NaijaSpark Quiz", canvas.width / 2, 350)
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
   }
 
   // Share functions
   const shareOnTwitter = () => {
+<<<<<<< HEAD
     const text = `I scored ${score}/${total} (${percentage}%) on the ${quiz.title} quiz and earned the "${badge}" badge! Try NaijaSpark Quiz yourself! #NaijaSparkQuiz`
+=======
+    const url = window.location.href
+    const text = `I scored ${score}/${total} (${percentage}%) on the ${quiz.title} quiz and earned the "${badge}" badge! Try NaijaSpark Quiz yourself at ${url}`
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     window.open(`https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`, "_blank")
   }
 
@@ -141,7 +259,12 @@ export default function ResultsDisplay({
   }
 
   const shareOnWhatsApp = () => {
+<<<<<<< HEAD
     const text = `I scored ${score}/${total} (${percentage}%) on the ${quiz.title} quiz and earned the "${badge}" badge! Try NaijaSpark Quiz yourself!`
+=======
+    const url = window.location.href
+    const text = `I scored ${score}/${total} (${percentage}%) on the ${quiz.title} quiz and earned the "${badge}" badge! Try NaijaSpark Quiz yourself at ${url}`
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     window.open(`https://wa.me/?text=${encodeURIComponent(text)}`, "_blank")
   }
 
@@ -163,12 +286,18 @@ export default function ResultsDisplay({
 
   const downloadShareImage = () => {
     if (!canvasRef.current) return
+<<<<<<< HEAD
 
+=======
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     const link = document.createElement("a")
     link.download = `naijaspark-quiz-${quiz.id}.png`
     link.href = canvasRef.current.toDataURL("image/png")
     link.click()
+<<<<<<< HEAD
 
+=======
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     toast({
       title: "Image downloaded!",
       description: "Share your results with friends",
@@ -236,14 +365,22 @@ export default function ResultsDisplay({
               <CardTitle className="text-center text-2xl">Your Results</CardTitle>
             </CardHeader>
 
+<<<<<<< HEAD
             <CardContent className="space-y-6">
+=======
+            <CardContent className="space-y-6 overflow-x-auto">
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
               <motion.div
                 className="text-center"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.5, delay: 0.2 }}
               >
+<<<<<<< HEAD
                 <div className="text-5xl font-bold mb-2">
+=======
+                <div className="text-4xl md:text-5xl font-bold mb-2">
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
                   {score}/{total}
                 </div>
                 <Progress value={percentage} className="h-4" />
@@ -257,6 +394,7 @@ export default function ResultsDisplay({
                 transition={{ duration: 0.5, delay: 0.3 }}
               >
                 <Badge className="mb-2 bg-green-600">{badge}</Badge>
+<<<<<<< HEAD
                 <p>{message}</p>
               </motion.div>
 
@@ -298,6 +436,23 @@ export default function ResultsDisplay({
                   </div>
                 </motion.div>
               )}
+=======
+                <p className="break-words">{message}</p>
+              </motion.div>
+
+              <motion.div
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.5, delay: 0.5 }}
+              >
+                <h3 className="font-medium mb-2">Achievement:</h3>
+                <div className="flex flex-wrap gap-2">
+                  <Badge variant="outline" className="bg-green-50 text-green-700 dark:bg-green-900 dark:text-green-300">
+                    {badge}
+                  </Badge>
+                </div>
+              </motion.div>
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 
               <Separator />
 
@@ -370,12 +525,18 @@ export default function ResultsDisplay({
           </TabsContent>
         </Tabs>
 
+<<<<<<< HEAD
         <CardFooter className="flex justify-between">
           <Button variant="outline" onClick={() => router.push("/")}>
             <Home className="mr-2 h-4 w-4" /> Home
           </Button>
           <Button onClick={() => router.push("/leaderboard")} className="bg-green-600 hover:bg-green-700">
             <Trophy className="mr-2 h-4 w-4" /> Leaderboard
+=======
+        <CardFooter className="flex justify-center">
+          <Button variant="outline" onClick={() => router.push("/")}>
+            <Home className="mr-2 h-4 w-4" /> Back to Home
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
           </Button>
         </CardFooter>
       </Card>

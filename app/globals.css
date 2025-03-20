@@ -50,7 +50,11 @@ body {
   }
   .dark {
     --background: 0 0% 3.9%;
+<<<<<<< HEAD
     --foreground: 0 0% 98%;
+=======
+    --foreground: 210 40% 98%;
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     --card: 0 0% 3.9%;
     --card-foreground: 0 0% 98%;
     --popover: 0 0% 3.9%;
@@ -81,6 +85,10 @@ body {
     --sidebar-accent-foreground: 240 4.8% 95.9%;
     --sidebar-border: 240 3.7% 15.9%;
     --sidebar-ring: 217.2 91.2% 59.8%;
+<<<<<<< HEAD
+=======
+    color-scheme: dark;
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
   }
 }
 
@@ -92,3 +100,50 @@ body {
     @apply bg-background text-foreground;
   }
 }
+<<<<<<< HEAD
+=======
+
+/* Improved text visibility */
+p,
+h1,
+h2,
+h3,
+h4,
+h5,
+h6,
+span,
+div {
+  overflow-wrap: break-word;
+  word-wrap: break-word;
+  hyphens: auto;
+}
+
+/* Improve card readability */
+.card {
+  max-width: 100%;
+  overflow: hidden;
+}
+
+/* Ensure proper padding in mobile views */
+@media (max-width: 640px) {
+  .container {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  h1,
+  h2,
+  h3 {
+    font-size: 95%;
+    line-height: 1.4;
+  }
+
+  p,
+  span,
+  div {
+    font-size: 95%;
+    line-height: 1.5;
+  }
+}
+
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964

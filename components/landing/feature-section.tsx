@@ -2,7 +2,11 @@
 
 import { useRef } from "react"
 import { motion, useInView } from "framer-motion"
+<<<<<<< HEAD
 import { Award, BarChart3, Brain, Languages, MessageSquare, Trophy } from "lucide-react"
+=======
+import { Award, BarChart3, Languages, Trophy, Sparkles, Zap } from "lucide-react"
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
 
 export default function FeatureSection() {
   const ref = useRef(null)
@@ -10,6 +14,7 @@ export default function FeatureSection() {
 
   const features = [
     {
+<<<<<<< HEAD
       icon: <Trophy className="h-10 w-10 text-green-600" />,
       title: "Competitive Leaderboards",
       description:
@@ -21,11 +26,30 @@ export default function FeatureSection() {
       title: "Earn Badges & Achievements",
       description: "Unlock special badges and achievements as you complete quizzes and improve your knowledge.",
       delay: 0.1,
+=======
+      icon: <Sparkles className="h-10 w-10 text-green-600" />,
+      title: "AI-Generated Quizzes",
+      description: "Create unique quizzes on Nigerian topics using AI technology for fresh content every time.",
+      delay: 0,
+    },
+    {
+      icon: <Trophy className="h-10 w-10 text-green-600" />,
+      title: "Track Your Progress",
+      description: "Monitor your performance and see how your knowledge improves over time with detailed statistics.",
+      delay: 0.1,
+    },
+    {
+      icon: <Award className="h-10 w-10 text-green-600" />,
+      title: "Earn Badges & Achievements",
+      description: "Unlock special badges and achievements as you complete quizzes and improve your knowledge.",
+      delay: 0.2,
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
     },
     {
       icon: <Languages className="h-10 w-10 text-green-600" />,
       title: "Multiple Language Options",
       description: "Take quizzes in English, Pidgin, Yoruba, Igbo, or Hausa to match your language preference.",
+<<<<<<< HEAD
       delay: 0.2,
     },
     {
@@ -38,6 +62,14 @@ export default function FeatureSection() {
       icon: <MessageSquare className="h-10 w-10 text-green-600" />,
       title: "Community Discussions",
       description: "Join conversations with other quiz enthusiasts to share knowledge and experiences.",
+=======
+      delay: 0.3,
+    },
+    {
+      icon: <Zap className="h-10 w-10 text-green-600" />,
+      title: "Offline Functionality",
+      description: "Access and take quizzes even without an internet connection with our offline mode.",
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
       delay: 0.4,
     },
     {

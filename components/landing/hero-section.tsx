@@ -72,11 +72,14 @@ export default function HeroSection() {
                   Start a Quiz <ArrowRight className="ml-2 h-5 w-5" />
                 </Button>
               </Link>
+<<<<<<< HEAD
               <Link href="/api/auth/signin">
                 <Button size="lg" variant="outline" className="text-lg">
                   Sign Up Free
                 </Button>
               </Link>
+=======
+>>>>>>> b170bc7d497abd5c9ab75a10fe29d94abd36d964
             </motion.div>
 
             <motion.div
